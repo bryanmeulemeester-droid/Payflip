@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payflip Multimedia Kostprijs Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --payflip-orange: #FF6B35;
+            --payflip-dark: #1A1A2E;
+            --payflip-light: #F7F7F7;
+            --payflip-blue: #0070C0;
+            --payflip-green: #00B050;
+            --payflip-yellow: #FFC000;
+            --gradient-1: linear-gradient(135deg, #FF6B35 0%, #FF8E53 100%);
+            --gradient-2: linear-gradient(135deg, #0070C0 0%, #4A90E2 100%);
+            --gradient-3: linear-gradient(135deg, #00B050 0%, #33CC77 100%);
+            --gradient-4: linear-gradient(135deg, #FFC000 0%, #FFD966 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--payflip-light);
+            color: var(--payflip-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: var(--gradient-1);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            background: white;
+            border: 3px solid transparent;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tab.smartphone::before { background: var(--gradient-2); }
+        .tab.accessoire::before { background: var(--gradient-3); }
+        .tab.smartwatch::before { background: var(--gradient-4); }
+
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab.active {
+            border-color: transparent;
+            color: white;
+        }
+
+        .tab.active::before {
+            opacity: 1;
+        }
+
+        .tab span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .calculator-card {
+            display: none;
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calculator-card.active {
+            display: block;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 3px solid var(--payflip-light);
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .icon.smartphone { background: var(--gradient-2); }
+        .icon.accessoire { background: var(--gradient-3); }
+        .icon.smartwatch { background: var(--gradient-4); }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--payflip-dark);
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--payflip-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #E5E5E5;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--payflip-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            color: #888;
+            pointer-events: none;
+            margin-top: 0.75rem;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--payflip-dark);
+        }
+
+        .total-row {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 3px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .total-row .result-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--payflip-dark);
+        }
+
+        .total-row .result-value {
+            font-size: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--payflip-orange);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+        }
+
+        .footer a {
+            color: var(--payflip-orange);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+
+            .calculator-card {
+                padding: 1.5rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .percentage-input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Multimedia Kostprijs Calculator</h1>
+        <p class="subtitle">Bereken automatisch de werkgeverskost voor jouw multimedia keuzes</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab smartphone active" data-tab="smartphone">
+                <span>📱 Smartphone</span>
+            </button>
+            <button class="tab accessoire" data-tab="accessoire">
+                <span>🎧 Accessoire</span>
+            </button>
+            <button class="tab smartwatch" data-tab="smartwatch">
+                <span>⌚ Smartwatch</span>
+            </button>
+        </div>
+
+        <!-- SMARTPHONE CALCULATOR -->
+        <div class="calculator-card active" id="smartphone">
+            <div class="card-header">
+                <div class="icon smartphone">📱</div>
+                <div>
+                    <h2 class="card-title">Smartphone Calculator</h2>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 class="section-title">💰 Inputs</h3>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label class="input-label">Kostprijs toestel (incl. BTW)</label>
+                        <input type="number" class="input-field" id="phone-price" value="1000" step="0.01">
+                        <span class="input-suffix">€</span>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="input-wrapper">
+                            <label class="input-label">Maandelijks VAA</label>
+                            <input type="number" class="input-field" id="phone-vaa" value="3" step="0.01">
+                            <span class="input-suffix">€</span>
+                        </div>
+                        
+                        <div class="input-wrapper">
+                            <label class="input-label">Contractduur</label>
+                            <input type="number" class="input-field" id="phone-months" value="24" step="1">
+                            <span class="input-suffix">maanden</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="input-wrapper">
+                            <label class="input-label">RSZ % werkgever</label>
+                            <input type="number" class="input-field percentage-input" id="phone-rsz" value="28" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                        
+                        <div class="input-wrapper">
+                            <label class="input-label">Restwaarde %</label>
+                            <input type="number" class="input-field percentage-input" id="phone-restwaard" value="20" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="input-label">Dubbel vakantiegeld factor</label>
+                        <input type="number" class="input-field" id="phone-vakantie" value="0.0767" step="0.0001">
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <h3 class="section-title">📊 Berekening</h3>
+                <div class="result-row">
+                    <span class="result-label">Kostprijs toestel</span>
+                    <span class="result-value" id="phone-cost-device">€ 1.000,00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">RSZ werkgever op maandelijks VAA</span>
+                    <span class="result-value" id="phone-rsz-vaa">€ 20,16</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Dubbel vakantiegeld op maandelijks VAA</span>
+                    <span class="result-value" id="phone-vakantiegeld">€ 5,52</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">RSZ werkgever op restwaarde</span>
+                    <span class="result-value" id="phone-rsz-rest">€ 56,00</span>
+                </div>
+                <div class="result-row total-row">
+                    <span class="result-label">Totale werkgeverskost</span>
+                    <span class="result-value" id="phone-total">€ 1.081,68</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCESSOIRE CALCULATOR -->
+        <div class="calculator-card" id="accessoire">
+            <div class="card-header">
+                <div class="icon accessoire">🎧</div>
+                <div>
+                    <h2 class="card-title">Accessoire Calculator</h2>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 class="section-title">💰 Inputs</h3>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label class="input-label">Kostprijs accessoire (incl. BTW)</label>
+                        <input type="number" class="input-field" id="acc-price" value="500" step="0.01">
+                        <span class="input-suffix">€</span>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="input-wrapper">
+                            <label class="input-label">RSZ % werkgever</label>
+                            <input type="number" class="input-field percentage-input" id="acc-rsz" value="28" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                        
+                        <div class="input-wrapper">
+                            <label class="input-label">Restwaarde %</label>
+                            <input type="number" class="input-field percentage-input" id="acc-restwaard" value="20" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <h3 class="section-title">📊 Berekening</h3>
+                <div class="result-row">
+                    <span class="result-label">Kostprijs accessoire</span>
+                    <span class="result-value" id="acc-cost-device">€ 500,00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">RSZ werkgever op restwaarde</span>
+                    <span class="result-value" id="acc-rsz-rest">€ 28,00</span>
+                </div>
+                <div class="result-row total-row">
+                    <span class="result-label">Totale werkgeverskost</span>
+                    <span class="result-value" id="acc-total">€ 528,00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMARTWATCH CALCULATOR -->
+        <div class="calculator-card" id="smartwatch">
+            <div class="card-header">
+                <div class="icon smartwatch">⌚</div>
+                <div>
+                    <h2 class="card-title">Smartwatch Calculator</h2>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 class="section-title">💰 Inputs</h3>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <label class="input-label">Kostprijs smartwatch (incl. BTW)</label>
+                        <input type="number" class="input-field" id="watch-price" value="1000" step="0.01">
+                        <span class="input-suffix">€</span>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="input-wrapper">
+                            <label class="input-label">RSZ % werkgever</label>
+                            <input type="number" class="input-field percentage-input" id="watch-rsz" value="28" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                        
+                        <div class="input-wrapper">
+                            <label class="input-label">Restwaarde %</label>
+                            <input type="number" class="input-field percentage-input" id="watch-restwaard" value="20" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="input-label">Éénmalig VAA percentage</label>
+                        <input type="number" class="input-field percentage-input" id="watch-vaa-pct" value="50" step="0.1">
+                        <span class="input-suffix">%</span>
+                    </div>
+                </div>
+                <div class="info-badge">💡 Voor smartwatches wordt een éénmalig VAA van 50% van de prijs aangerekend</div>
+            </div>
+
+            <div class="results">
+                <h3 class="section-title">📊 Berekening</h3>
+                <div class="result-row">
+                    <span class="result-label">Kostprijs toestel</span>
+                    <span class="result-value" id="watch-cost-device">€ 1.000,00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">RSZ werkgever op éénmalig VAA</span>
+                    <span class="result-value" id="watch-rsz-vaa">€ 140,00</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">RSZ werkgever op restwaarde</span>
+                    <span class="result-value" id="watch-rsz-rest">€ 56,00</span>
+                </div>
+                <div class="result-row total-row">
+                    <span class="result-label">Totale werkgeverskost</span>
+                    <span class="result-value" id="watch-total">€ 1.196,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Gebaseerd op de <a href="https://help.payflip.be/nl/articles/11468-hoe-wordt-de-kostprijs-van-een-keuze-voor-multimedia-berekend" target="_blank">Payflip multimedia berekeningsregels</a></p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Ontdek meer op <a href="https://payflip.be/nl/" target="_blank">payflip.be</a></p>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const cards = document.querySelectorAll('.calculator-card');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                cards.forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Format currency
+        function formatCurrency(value) {
+            return '€ ' + value.toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // SMARTPHONE CALCULATIONS
+        function calculatePhone() {
+            const price = parseFloat(document.getElementById('phone-price').value) || 0;
+            const vaa = parseFloat(document.getElementById('phone-vaa').value) || 0;
+            const months = parseFloat(document.getElementById('phone-months').value) || 0;
+            const rsz = parseFloat(document.getElementById('phone-rsz').value) / 100 || 0;
+            const restwaard = parseFloat(document.getElementById('phone-restwaard').value) / 100 || 0;
+            const vakantie = parseFloat(document.getElementById('phone-vakantie').value) || 0;
+
+            const costDevice = price;
+            const rszVaa = vaa * months * rsz;
+            const vakantiegeld = vaa * months * vakantie;
+            const rszRest = price * restwaard * rsz;
+            const total = costDevice + rszVaa + vakantiegeld + rszRest;
+
+            document.getElementById('phone-cost-device').textContent = formatCurrency(costDevice);
+            document.getElementById('phone-rsz-vaa').textContent = formatCurrency(rszVaa);
+            document.getElementById('phone-vakantiegeld').textContent = formatCurrency(vakantiegeld);
+            document.getElementById('phone-rsz-rest').textContent = formatCurrency(rszRest);
+            document.getElementById('phone-total').textContent = formatCurrency(total);
+        }
+
+        // ACCESSOIRE CALCULATIONS
+        function calculateAccessoire() {
+            const price = parseFloat(document.getElementById('acc-price').value) || 0;
+            const rsz = parseFloat(document.getElementById('acc-rsz').value) / 100 || 0;
+            const restwaard = parseFloat(document.getElementById('acc-restwaard').value) / 100 || 0;
+
+            const costDevice = price;
+            const rszRest = price * restwaard * rsz;
+            const total = costDevice + rszRest;
+
+            document.getElementById('acc-cost-device').textContent = formatCurrency(costDevice);
+            document.getElementById('acc-rsz-rest').textContent = formatCurrency(rszRest);
+            document.getElementById('acc-total').textContent = formatCurrency(total);
+        }
+
+        // SMARTWATCH CALCULATIONS
+        function calculateWatch() {
+            const price = parseFloat(document.getElementById('watch-price').value) || 0;
+            const rsz = parseFloat(document.getElementById('watch-rsz').value) / 100 || 0;
+            const restwaard = parseFloat(document.getElementById('watch-restwaard').value) / 100 || 0;
+            const vaaPct = parseFloat(document.getElementById('watch-vaa-pct').value) / 100 || 0;
+
+            const costDevice = price;
+            const rszVaa = price * vaaPct * rsz;
+            const rszRest = price * restwaard * rsz;
+            const total = costDevice + rszVaa + rszRest;
+
+            document.getElementById('watch-cost-device').textContent = formatCurrency(costDevice);
+            document.getElementById('watch-rsz-vaa').textContent = formatCurrency(rszVaa);
+            document.getElementById('watch-rsz-rest').textContent = formatCurrency(rszRest);
+            document.getElementById('watch-total').textContent = formatCurrency(total);
+        }
+
+        // Add event listeners
+        ['phone-price', 'phone-vaa', 'phone-months', 'phone-rsz', 'phone-restwaard', 'phone-vakantie'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculatePhone);
+        });
+
+        ['acc-price', 'acc-rsz', 'acc-restwaard'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateAccessoire);
+        });
+
+        ['watch-price', 'watch-rsz', 'watch-restwaard', 'watch-vaa-pct'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateWatch);
+        });
+
+        // Initial calculations
+        calculatePhone();
+        calculateAccessoire();
+        calculateWatch();
+    </script>
+</body>
+</html>
